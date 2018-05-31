@@ -12,13 +12,12 @@ turtlebot3_environment_scanner/
 ├──include
 └──src
 
-<<<<<<< HEAD
 . -> useful files for compiling the source code
 =======
 utilities -> useful files during development phase
 =======
 report -> report of the project
->>>>>>> fe100541d858262ec6cd1cf6204a9e2629b3d2bd
+=======
 src -> source code
 =======
 include -> include files
