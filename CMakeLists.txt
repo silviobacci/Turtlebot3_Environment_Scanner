@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(turtlebot3_environment_scanner)
+set(catkin_WORKSPACE "${CMAKE_SOURCE_DIR}/..")
+set(PROJECT_LIBRARY "${catkin_WORKSPACE}/devel/lib/lib${PROJECT_NAME}.so")
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -106,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES turtlebot3_environment_scanner
 #  CATKIN_DEPENDS actionlib actionlib_msgs geometry_msgs roscpp sensor_msgs std_msgs
 #  DEPENDS system_lib
@@ -125,9 +127,12 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/dan_pkg.cpp
-# )
+add_library(
+	${PROJECT_NAME}
+	src/subscriber.cpp
+	src/publisher.cpp
+	src/controller.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -137,7 +142,6 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/dan_pkg_node.cpp)
 add_executable(scanner_node src/scanner_node.cpp)
 
 ## Rename C++ executable without prefix
@@ -154,7 +158,11 @@ add_executable(scanner_node src/scanner_node.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(scanner_node ${catkin_LIBRARIES})
+target_link_libraries(
+	scanner_node 
+	${catkin_LIBRARIES}
+	${PROJECT_LIBRARY}
+)
 
 #############
 ## Install ##

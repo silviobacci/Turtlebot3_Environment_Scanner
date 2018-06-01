@@ -1,3 +1,11 @@
+#--------------------------------------------------------------------------------------#
+# Edit the ~/.bashrc file and add at the end the following lines:                      #
+#                                                                                      #
+# export ROS_WORKSPACE=$HOME/tb3_ws                                                    #
+#                                                                                      #
+# source $ROS_WORKSPACE/src/turtlebot3_environment_scanner/utilities/.source_in_bashrc #
+#--------------------------------------------------------------------------------------#
+
 export PROJECT_FOLDER_NAME=turtlebot3_environment_scanner
 export PROJECT_NODE_NAME=scanner_node
 
@@ -5,7 +13,7 @@ export ROS_MASTER_URI=http://localhost:11311
 export ROS_HOSTNAME=localhost
 export TURTLEBOT3_MODEL=burger
 
-export PATH=$HOME/tb3_ws/src/turtlebot3_environment_scanner/utilities:$PATH
+export PATH=$ROS_WORKSPACE/src/turtlebot3_environment_scanner/utilities:$PATH
 
 source /opt/ros/kinetic/setup.bash
-source $HOME/tb3_ws/devel/setup.bash
+source $ROS_WORKSPACE/devel/setup.bash
