@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(turtlebot3_environment_scanner)
-set(catkin_WORKSPACE "${CMAKE_SOURCE_DIR}/..")
-set(PROJECT_LIBRARY "${catkin_WORKSPACE}/devel/lib/lib${PROJECT_NAME}.so")
+
+set(CATKIN_WORKSPACE "${CMAKE_SOURCE_DIR}/..")
+set(PROJECT_FOLDER "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}")
+
+set(PROJECT_INCLUDES "${PROJECT_FOLDER}/include")
+file(GLOB PROJECT_LIBRARIES ${PROJECT_FOLDER}/lib/*.cpp)
+set(OUTPUT_DYNAMIC_LIBRARY "${CATKIN_WORKSPACE}/devel/lib/lib${PROJECT_NAME}.so")
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -108,7 +113,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS ${PROJECT_INCLUDES}
 #  LIBRARIES turtlebot3_environment_scanner
 #  CATKIN_DEPENDS actionlib actionlib_msgs geometry_msgs roscpp sensor_msgs std_msgs
 #  DEPENDS system_lib
@@ -121,17 +126,15 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
+	${PROJECT_INCLUDES}
+	${catkin_INCLUDE_DIRS}
+	${Boost_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 add_library(
 	${PROJECT_NAME}
-	src/subscriber.cpp
-	src/publisher.cpp
-	src/controller.cpp
+	${PROJECT_LIBRARIES}
 )
 
 ## Add cmake target dependencies of the library
@@ -161,7 +164,7 @@ add_executable(scanner_node src/scanner_node.cpp)
 target_link_libraries(
 	scanner_node 
 	${catkin_LIBRARIES}
-	${PROJECT_LIBRARY}
+	${OUTPUT_DYNAMIC_LIBRARY}
 )
 
 #############
