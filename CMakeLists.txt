@@ -8,6 +8,8 @@ set(PROJECT_INCLUDES "${PROJECT_FOLDER}/include")
 file(GLOB PROJECT_LIBRARIES ${PROJECT_FOLDER}/lib/*.cpp)
 set(OUTPUT_DYNAMIC_LIBRARY "${CATKIN_WORKSPACE}/devel/lib/lib${PROJECT_NAME}.so")
 
+set(MSG_INCLUDES "${CATKIN_WORKSPACE}/devel/include/${PROJECT_NAME}")
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -15,12 +17,13 @@ set(OUTPUT_DYNAMIC_LIBRARY "${CATKIN_WORKSPACE}/devel/lib/lib${PROJECT_NAME}.so"
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  actionlib
-  actionlib_msgs
-  geometry_msgs
-  roscpp
-  sensor_msgs
-  std_msgs
+	actionlib
+	actionlib_msgs
+	geometry_msgs
+	roscpp
+	sensor_msgs
+	std_msgs
+	message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -57,11 +60,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+	FILES
+	obstacle_point.msg
+	scanned_points.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -78,10 +81,15 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   actionlib_msgs#   geometry_msgs#   sensor_msgs#   std_msgs
-# )
+generate_messages(
+	DEPENDENCIES
+	actionlib
+	actionlib_msgs
+	geometry_msgs
+	roscpp
+	sensor_msgs
+	std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -113,9 +121,17 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS ${PROJECT_INCLUDES}
+	INCLUDE_DIRS 
+		${PROJECT_INCLUDES}
 #  LIBRARIES turtlebot3_environment_scanner
-#  CATKIN_DEPENDS actionlib actionlib_msgs geometry_msgs roscpp sensor_msgs std_msgs
+	CATKIN_DEPENDS 
+		message_runtime
+		actionlib 
+		actionlib_msgs 
+		geometry_msgs 
+		roscpp 
+		sensor_msgs 
+		std_msgs 
 #  DEPENDS system_lib
 )
 
@@ -127,6 +143,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 	${PROJECT_INCLUDES}
+	${MSG_INCLUDES}
 	${catkin_INCLUDE_DIRS}
 	${Boost_INCLUDE_DIRS}
 )
