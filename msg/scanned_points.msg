@@ -1,3 +1,0 @@
-obstacle_point[] obstacle
-float32 min_distance
-float32 max_distance

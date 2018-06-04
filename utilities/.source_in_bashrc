@@ -6,11 +6,13 @@
 # source $ROS_WORKSPACE/src/turtlebot3_environment_scanner/utilities/.source_in_bashrc #
 #--------------------------------------------------------------------------------------#
 
+export MY_IP_ADDRESS="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f8)"
+
 export PROJECT_FOLDER_NAME=turtlebot3_environment_scanner
 export PROJECT_NODE_NAME=scanner_node
 
-export ROS_MASTER_URI=http://localhost:11311
-export ROS_HOSTNAME=localhost
+export ROS_MASTER_URI=http://$MY_IP_ADDRESS:11311
+export ROS_HOSTNAME=$MY_IP_ADDRESS
 export TURTLEBOT3_MODEL=burger
 
 export PATH=$ROS_WORKSPACE/src/turtlebot3_environment_scanner/utilities:$PATH

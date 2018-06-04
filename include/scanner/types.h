@@ -1,17 +1,16 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-typedef struct point {
-	float x;
-	float y;
-	int angle;
-	float distance;
-} obstacle_point;
-
-typedef struct points {
-	obstacle_point obstacle[360];
+typedef struct cloud_points {
+	float x[360];
+	float y[360];
+	float angle[360];
+	float distance[360];
+	float angle_min;
+	float angle_max;
+	float angle_increment;
 	float min_distance;
 	float max_distance;
-} scanned_points;
+} tb_cloud_points;
 
 #endif

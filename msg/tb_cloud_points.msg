@@ -1,0 +1,9 @@
+float64[360] x
+float64[360] y
+float32[360] angle
+float32[360] distance
+float32 angle_min
+float32 angle_max
+float32 angle_increment
+float32 min_distance
+float32 max_distance

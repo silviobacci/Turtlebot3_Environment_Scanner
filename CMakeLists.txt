@@ -62,8 +62,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 add_message_files(
 	FILES
-	obstacle_point.msg
-	scanned_points.msg
+	tb_cloud_points.msg
 )
 
 ## Generate services in the 'srv' folder
