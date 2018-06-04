@@ -2,6 +2,7 @@
 #define SUBSCRIBER_H
 
 #include <turtlebot3_environment_scanner/tb_cloud_points.h>
+//#include "scanner/types.h"
 
 typedef turtlebot3_environment_scanner::tb_cloud_points tb_cloud_points;
 

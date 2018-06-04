@@ -41,11 +41,11 @@ void lidar_callback(const sensor_msgs::LaserScan::ConstPtr& lidar){
 	for(int i = 0; i < (environment.angle_max - environment.angle_min) / environment.angle_increment; i++) {
 		environment.angle[i] = i * environment.angle_increment;
 		environment.distance[i] = lidar->ranges[i];
-		environment.x[i] = tb_position.x + environment.distance[i] * sin(environment.angle[i] * DEG_TO_RAD);
-		environment.y[i] = tb_position.y + environment.distance[i] * cos(environment.angle[i] * DEG_TO_RAD);
+		environment.cloud_x[i] = environment.tb_x + environment.distance[i] * sin(environment.angle[i] * DEG_TO_RAD);
+		environment.cloud_y[i] = environment.tb_y + environment.distance[i] * cos(environment.angle[i] * DEG_TO_RAD);
 	}
 
-	print_lidar_info(environment);
+	//print_lidar_info(environment);
 }
 
 void print_velocity_info(const geometry_msgs::Twist::ConstPtr teleop_speed) { 
@@ -68,9 +68,8 @@ void teleop_callback(const geometry_msgs::Twist::ConstPtr& teleop_speed){
 }
 
 void odom_callback(const nav_msgs::Odometry::ConstPtr& odom){ 
-	tb_position.x = odom->pose.pose.position.x;
-	tb_position.y = odom->pose.pose.position.y;
-	tb_position.z = odom->pose.pose.position.z;
+	environment.tb_x = odom->pose.pose.position.x;
+	environment.tb_y = odom->pose.pose.position.y;
 }
 
 void init_subscriber(){
