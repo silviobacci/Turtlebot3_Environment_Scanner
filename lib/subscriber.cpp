@@ -76,6 +76,8 @@ void odom_callback(const nav_msgs::Odometry::ConstPtr& odom){
 	current_destination.tb_x = odom->pose.pose.position.x;
 	current_destination.tb_y = odom->pose.pose.position.y;
 	current_destination.tb_yaw = quaternion_to_euler_angle(odom->pose.pose.orientation);
+	current_destination.tb_linear_velocity = odom->twist.twist.linear.x;
+	current_destination.tb_angular_velocity = odom->twist.twist.angular.z;
 
 	run_controller();
 

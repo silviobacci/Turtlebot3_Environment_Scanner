@@ -178,7 +178,7 @@ void print_controller_info(double * destination) {
 void init_controller() {
 	clock_gettime(CLOCK_MONOTONIC, &start);
 	current_destination.final_destination_x = 1.5;
-	current_destination.final_destination_y = 0.0;
+	current_destination.final_destination_y = 1.0;
 	final_destination[0] = current_destination.final_destination_x;
 	final_destination[1] = current_destination.final_destination_y;
 	final_destination[2] = 0.0;

@@ -16,6 +16,8 @@ typedef struct destination {
 	float tb_x;
 	float tb_y;
 	float tb_yaw;
+	float tb_linear_velocity;
+	float tb_angular_velocity;
 } tb_destination;
 
 #endif

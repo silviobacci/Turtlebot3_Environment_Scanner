@@ -5,3 +5,5 @@ float64 destination_y
 float64 tb_x
 float64 tb_y
 float64 tb_yaw
+float64 tb_linear_velocity
+float64 tb_angular_velocity
