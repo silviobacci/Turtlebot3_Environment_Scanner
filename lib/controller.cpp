@@ -7,13 +7,14 @@
 
 #define SAFETY_DISTANCE	10.0
 
-#define RADIUS_1	0.2
-#define RADIUS_2	0.5
-#define RADIUS_3	1.0
+#define RADIUS_1	0.1
+#define RADIUS_2	0.2
+#define RADIUS_3	0.4
 
-double final_destination[3] = {1.0, -0.5, 0.0};
 struct timespec start, stop;
 double delta_t;
+
+double final_destination[3];
 
 double scalar_product(double v1[3], double v2[3]) {
 	return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
@@ -81,7 +82,8 @@ double * check_proxy_contact(double destination[3]) {
 	static double * proxy_delta;
 
 	double v_scalar;
-	double step = delta_t * tb_speed.linear.x;
+	//double step = delta_t * tb_speed.linear.x;
+	double step = 0.2;
 	int num_points_r1 = 0;
 	int num_points_r2 = 0;
 	int num_points_r3 = 0;
@@ -175,6 +177,11 @@ void print_controller_info(double * destination) {
 
 void init_controller() {
 	clock_gettime(CLOCK_MONOTONIC, &start);
+	current_destination.final_destination_x = 1.5;
+	current_destination.final_destination_y = 0.0;
+	final_destination[0] = current_destination.final_destination_x;
+	final_destination[1] = current_destination.final_destination_y;
+	final_destination[2] = 0.0;
 }
 
 void run_controller() {
@@ -205,6 +212,8 @@ void run_controller() {
 	//print_controller_info(destination);
 
 	double * proxy_delta = check_proxy_contact(final_destination);
-	current_destination.destination_x = environment.tb_x + proxy_delta[0];
-	current_destination.destination_y = environment.tb_y + proxy_delta[1];
+	ROS_INFO("proxy_delta.x %f", proxy_delta[0]);
+	ROS_INFO("proxy_delta.y %f", proxy_delta[1]);
+	current_destination.destination_x = current_destination.tb_x + proxy_delta[0];
+	current_destination.destination_y = current_destination.tb_y + proxy_delta[1];
 }

@@ -9,6 +9,8 @@ typedef struct cloud_points {
 } tb_cloud_points;
 
 typedef struct destination {
+	float final_destination_x;
+	float final_destination_y;
 	float destination_x;
 	float destination_y;
 	float tb_x;

@@ -1,3 +1,5 @@
+float64 final_destination_x
+float64 final_destination_y
 float64 destination_x
 float64 destination_y
 float64 tb_x
