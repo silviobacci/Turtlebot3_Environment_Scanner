@@ -13,8 +13,11 @@ void init_publisher(){
 	env_constructor_publisher = node_obj.advertise<tb_cloud_points>("/env_constructor", 1);
 }
 
-void publish() {
+void publish_cmd_vel() {
 	cmd_vel_publisher.publish(tb_speed);
+}
+
+void publish_env_constructor() {
 	env_constructor_publisher.publish(environment);
 }
 

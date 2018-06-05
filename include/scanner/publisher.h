@@ -7,6 +7,8 @@ extern geometry_msgs::Twist tb_speed;
 
 void init_publisher();
 
-void publish();
+void publish_cmd_vel();
+
+void publish_env_constructor();
 
 #endif

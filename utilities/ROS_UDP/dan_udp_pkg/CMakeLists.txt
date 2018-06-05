@@ -1,33 +1,23 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(turtlebot3_environment_scanner)
-
-set(CATKIN_WORKSPACE "${CMAKE_SOURCE_DIR}/..")
-set(PROJECT_FOLDER "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}")
-
-set(PROJECT_INCLUDES "${PROJECT_FOLDER}/include")
-file(GLOB PROJECT_LIBRARIES ${PROJECT_FOLDER}/lib/*.cpp)
-set(OUTPUT_DYNAMIC_LIBRARY "${CATKIN_WORKSPACE}/devel/lib/lib${PROJECT_NAME}.so")
-
-set(MSG_INCLUDES "${CATKIN_WORKSPACE}/devel/include/${PROJECT_NAME}")
+project(dan_udp_pkg)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+# add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-	actionlib
-	actionlib_msgs
-	geometry_msgs
-	roscpp
-	sensor_msgs
-	std_msgs
-	message_generation
+  actionlib
+  actionlib_msgs
+  roscpp
+  std_msgs	
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs) #per il lidar
+
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -60,10 +50,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-	FILES
-	tb_cloud_points.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -80,15 +71,12 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-	DEPENDENCIES
-	actionlib
-	actionlib_msgs
-	geometry_msgs
-	roscpp
-	sensor_msgs
-	std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+#   sensor_msgs
+#   actionlib_msgs#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -120,17 +108,9 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-	INCLUDE_DIRS 
-		${PROJECT_INCLUDES}
-#  LIBRARIES turtlebot3_environment_scanner
-	CATKIN_DEPENDS 
-		message_runtime
-		actionlib 
-		actionlib_msgs 
-		geometry_msgs 
-		roscpp 
-		sensor_msgs 
-		std_msgs 
+#  INCLUDE_DIRS include
+#  LIBRARIES dan_udp_pkg
+  CATKIN_DEPENDS actionlib actionlib_msgs roscpp std_msgs sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -141,17 +121,16 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-	${PROJECT_INCLUDES}
-	${MSG_INCLUDES}
-	${catkin_INCLUDE_DIRS}
-	${Boost_INCLUDE_DIRS}
+# include
+  ${catkin_INCLUDE_DIRS}
 )
 
+
+
 ## Declare a C++ library
-add_library(
-	${PROJECT_NAME}
-	${PROJECT_LIBRARIES}
-)
+# add_library(${PROJECT_NAME}
+#   src/${PROJECT_NAME}/dan_udp_pkg.cpp
+# )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -161,7 +140,8 @@ add_library(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(scanner_node src/scanner_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/dan_udp_pkg_node.cpp)
+add_executable(dan_udp_node src/dan_udp_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -172,17 +152,13 @@ add_executable(scanner_node src/scanner_node.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(dan_udp_node dan_udp_pkg_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(
-	scanner_node 
-	${catkin_LIBRARIES}
-	${OUTPUT_DYNAMIC_LIBRARY}
-)
-
+target_link_libraries(dan_udp_node ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############
@@ -223,7 +199,7 @@ target_link_libraries(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_dan_pkg.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_dan_udp_pkg.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

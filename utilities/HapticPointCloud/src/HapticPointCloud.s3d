@@ -1,0 +1,464 @@
+/* Include s3d symbols */
+#include <Script3d.h>
+#include <Camera.s3d.h>
+#include "Common.s3d"
+
+/* Set global scene parameters */
+SET SCENE_FOV  = 60;
+SET SCENE_NEAR = 0.5;
+SET SCENE_FAR  = 1000;
+
+
+// TODO: put your global variables here
+
+
+/* Camera globals */
+var CamPos = [0.0, 5.0, 30.0]; 	// camera position
+
+/* Light globals */
+var Light0;
+var PosL = [0.0, 10.0, 10.0];	// default light position
+
+
+//Test point cloud
+#define NUM_POINTS 500
+var points = vector(NUM_POINTS*3);
+var spheres = Array(NUM_POINTS);
+var mesh_spheres = Array(NUM_POINTS);
+var mat0;
+var mat1;
+var mat2;
+var mat3;
+
+// end effector and proxy
+var EOF_obj;
+var EOF_mesh;
+var EOF_pos = [0.0, 4.0, 0.0];
+var EOF_radius = 1.0;
+var EOF_mat; 
+
+var Proxy_delta = [0.0, 0.0, 0.0]; //step toward EOF position
+
+
+var Proxy0_obj;
+var Proxy0_mesh;
+var Proxy0_mat;
+var Proxy0_radius = 2.0;
+
+var Proxy1_obj;
+var Proxy1_mesh;
+var Proxy1_mat;
+var Proxy1_radius = 4.0;
+
+var Proxy2_obj;
+var Proxy2_mesh;
+var Proxy2_mat;
+var Proxy2_radius = 5.0;
+
+
+var Proxy_pos = [0.0, 0.0, 0.0];
+
+var i = 0;
+var p_i = 0;
+
+
+//VARIABILI DA COPIARE NELLA FUNZIONE CHECKPROXYCONTACT
+var proxy_status = 0; //0 = no points, 1 = free motion 2 = contact 3 = entrenchment
+
+var points_dist = Array(NUM_POINTS);
+var points_r1_i = Array(NUM_POINTS);
+var points_r2_i = Array(NUM_POINTS);
+var points_r3_i = Array(NUM_POINTS);
+var num_points_r1 = 0;
+var num_points_r2 = 0;
+var num_points_r3 = 0;
+var proxy_normal = [0.0, 0.0, 0.0];
+var proxy_plane = [0.0, 0.0, 0.0];
+var proxy_err = [0.0, 0.0, 0.0];
+var v = [0.0, 0.0, 0.0];
+
+/* Function declarations */
+function CameraMoveMouse();
+function DrawGrid(col, size);
+function ManualTrimmer(v_trimmer);
+function CheckProxyContact(eof_pos, proxy_pos, radius1, radius2, radius3, points, step);
+
+
+
+function OnDownload()
+{
+	// TODO: download your resources here
+	// E.g.: FileDownload("resource.ext");
+}
+
+
+
+function OnInit(params)
+{
+	/* initialize camera */
+	CameraGetCurrent().SetPosition(CamPos);
+
+	/* initialize light */
+	Light0 = CVmLight();
+	Light0.SetPosition(PosL);
+	Light0.SetDiffuse(1, 1, 1);
+	Light0.Enable();	
+
+	SetClearColor(0.8,0.8,0.8);
+	
+	
+	
+	//test rendering
+	for(i=0; i<(NUM_POINTS*0.5*3); i=i+3)		
+	{
+		points[i] = 0.0 + 0.1*Rand(200);
+		points[i+1] = 0.0 + 0.001*Rand(200);
+		points[i+2] = 0.0 + 0.1*Rand(200);
+	}
+	
+	for(i=NUM_POINTS*0.5*3; i<(NUM_POINTS*3); i=i+3)		
+	{
+		points[i] = 0.0 + 0.001*Rand(200);
+		points[i+1] = 0.0 + 0.1*Rand(200);
+		points[i+2] = 0.0 + 0.1*Rand(200);
+	}	
+	
+	//init points
+
+	mat0 = CVmMaterial();
+	mat0.Diffuse = [0.5, 0.5, 0.5, 1.0];
+	mat0.Transparency = 0.75;
+	mat1 = CVmMaterial();
+	mat1.Diffuse = [1.0, 0.0, 0.0, 1.0];
+	mat2 = CVmMaterial();
+	mat2.Diffuse = [0.0, 1.0, 0.0, 1.0];
+	mat3 = CVmMaterial();
+	mat3.Diffuse = [0.0, 0.0, 1.0, 1.0];
+		
+	var s_i = 0;
+	for (i=0; i<(NUM_POINTS*3); i=i+3)
+	{		
+		mesh_spheres[s_i] = CVmNewMesh(VRP_SPHERE);
+		mesh_spheres[s_i].Scale(0.5);		
+		spheres[s_i] = CVmObj(mesh_spheres[s_i]);
+		spheres[s_i].SetPosition([points[i], points[i+1], points[i+2]]);
+		spheres[s_i].ForceMaterial(mat0);
+		s_i++;
+	}
+	
+	//Init Proxy
+	Proxy0_mat = CVmMaterial();
+	Proxy0_mat.Diffuse = [1.0, 0.0, 0.0, 1.0];
+	Proxy0_mat.Transparency = 0.5;
+	Proxy0_mesh = CVmNewMesh(VRP_SPHERE);
+	Proxy0_mesh.Scale(2*Proxy0_radius);
+	Proxy0_obj = CVmObj(Proxy0_mesh);
+	Proxy0_obj.ForceMaterial(Proxy0_mat);
+
+	Proxy1_mat = CVmMaterial();
+	Proxy1_mat.Diffuse = [1.0, 0.0, 0.0, 1.0];
+	Proxy1_mat.Transparency = 0.2;
+	Proxy1_mesh = CVmNewMesh(VRP_SPHERE);
+	Proxy1_mesh.Scale(2*Proxy1_radius);
+	Proxy1_obj = CVmObj(Proxy1_mesh);
+	Proxy1_obj.ForceMaterial(Proxy1_mat);
+	
+	Proxy2_mat = CVmMaterial();
+	Proxy2_mat.Diffuse = [1.0, 0.0, 0.0, 1.0];
+	Proxy2_mat.Transparency = 0.1;
+	Proxy2_mesh = CVmNewMesh(VRP_SPHERE);
+	Proxy2_mesh.Scale(2*Proxy2_radius);
+	Proxy2_obj = CVmObj(Proxy2_mesh);
+	Proxy2_obj.ForceMaterial(Proxy2_mat);	
+	
+	//Init EOF
+	EOF_mat = CVmMaterial();
+	EOF_mat.Diffuse = [0.0, 0.0, 1.0, 1.0];
+	EOF_mat.Transparency = 1.0;
+	EOF_mesh = CVmNewMesh(VRP_SPHERE);
+	EOF_mesh.Scale(EOF_radius);
+	EOF_obj = CVmObj(EOF_mesh);
+	EOF_obj.ForceMaterial(EOF_mat);
+	
+	trace(points);
+}
+
+
+
+function OnFrame()
+{
+	
+	EOF_pos = ManualTrimmer(EOF_pos);
+	//Proxy_delta = (EOF_pos-Proxy_pos)*0.1;
+	//Proxy_pos = Proxy_pos + Proxy_delta; //if no collision detected
+	
+	Proxy_delta = CheckProxyContact(EOF_pos, Proxy_pos, Proxy0_radius, Proxy1_radius, Proxy2_radius, points, 0.1);
+	Proxy_pos = Proxy_pos + Proxy_delta;
+	
+	
+	
+	//VISUALIZATION
+	
+	//check point cloud
+	p_i = 0;
+	var dist = 0;
+	var num_contact = 0;
+	for (i=0; i<NUM_POINTS; i++)
+	{
+		//dist = abs(Proxy_pos[0]-points[p_i])+ abs(Proxy_pos[1]-points[p_i+1])+ abs(Proxy_pos[2]-points[p_i+2]);
+		var dist_v = [Proxy_pos[0]-points[p_i], Proxy_pos[1]-points[p_i+1], Proxy_pos[2]-points[p_i+2]];
+		dist = modulus(dist_v);
+		if(dist<Proxy2_radius)
+		{
+			spheres[i].ForceMaterial(mat1);
+			num_contact++;
+		}
+		else
+		{
+			spheres[i].ForceMaterial(mat0);
+		}	
+		p_i = p_i+3;
+	}
+	
+	
+	EOF_obj.SetPosition(EOF_pos);
+	Proxy0_obj.SetPosition(Proxy_pos);
+	Proxy1_obj.SetPosition(Proxy_pos);
+	Proxy2_obj.SetPosition(Proxy_pos);
+	
+	/* manage camera */
+	CameraMoveMouse();
+
+	SceneBegin();
+
+	glEnable(GL_BLEND);
+	
+	DrawGrid([0.5, 0.5, 0.5], 100);
+	
+	for (i=0; i<NUM_POINTS; i++)
+	{
+		spheres[i].Draw();
+	}
+	
+	DrawAxis(Proxy_pos, proxy_normal*10, [0.0, 1.0, 0.5, 0.5]);
+	DrawAxis(Proxy_pos, proxy_plane*10, [0.0, 1.0, 0.5, 0.5]);
+	//DrawAxis(Proxy_pos, proxy_err*10, [0.0, 1.0, 0.5, 0.5]);
+	EOF_obj.Draw();
+	Proxy0_obj.Draw();
+	Proxy1_obj.Draw();
+	Proxy2_obj.Draw();
+	
+	ConsoleFont("Arial", 24);
+	ConsoleText(0.1, 0.1, "Num R1: " + str(num_points_r1) + "  Num R2: " + str(num_points_r2) + "  Num R3: " + str(num_points_r3));
+	ConsoleText(0.1, 0.2, "Normal X: " + str(proxy_normal[0]) + " Y: " + str(proxy_normal[1]) + " Z: " + str(proxy_normal[0]));
+	ConsoleText(0.1, 0.3, "Plane X: " + str(proxy_plane[0]) + " Y: " + str(proxy_plane[1]) + " Z: " + str(proxy_plane[2]));
+	
+	glDisable(GL_BLEND);
+	
+	SceneEnd();
+}
+
+
+
+function DownloadReady(RequestID)
+{
+	// TODO
+}
+
+
+
+function OnTimer()
+{
+	// TODO:
+}
+
+
+function OnEvent(eventID, wparam, lparam){
+	// TODO: put your events handling code here
+}
+
+function OnError(){
+	// TODO: put your errors handling code here
+}
+
+
+function OnExit()
+{
+	// TODO: put your cleanup code here
+}
+
+
+
+// Camera manager (using mouse)
+function CameraMoveMouse()
+{	
+
+	CameraMoveMouse_MBL_LC();
+
+}
+
+
+
+function DrawGrid(col, size)
+{
+	/* let's not mess up current OpenGL status */
+	glPushAttrib(GL_LIGHTING_BIT | GL_LINE_BIT | GL_CURRENT_BIT);
+	
+	glLineWidth(1);
+	glDisable(GL_LIGHTING);
+	glColor(col);
+	var max = size / 2.0;
+	var min = -max;	
+	var step = size / 10.0;
+	
+	glBegin(GL_LINES);
+		for (var i = min; i <= max; i += step)
+		{
+			glVertex(i, 0, max);
+			glVertex(i, 0, min);
+			
+			glVertex(max, 0, i);
+			glVertex(min, 0, i);
+		}
+	glEnd();
+	
+	/* polite restoration of previous OpenGL status */
+	glPopAttrib();
+}
+
+
+
+function ManualTrimmer(v_trimmer)
+{
+	var STEP = 0.1;
+	
+	if (keypressed("Q"))
+		v_trimmer[0] += STEP;
+	
+	if (keypressed("A"))
+		v_trimmer[0] -= STEP;
+		
+	if (keypressed("W"))
+		v_trimmer[1] += STEP;
+	
+	if (keypressed("S"))
+		v_trimmer[1] -= STEP;
+		
+	if (keypressed("E"))
+		v_trimmer[2] += STEP;
+	
+	if (keypressed("D"))
+		v_trimmer[2] -= STEP;
+	
+	if (keypressed("P")) //debug
+		trace(v_trimmer);
+		
+	//trace(v_trimmer);			
+	return v_trimmer;
+		
+}
+
+function CheckProxyContact(eof_pos, proxy_pos, radius1, radius2, radius3, points, step)
+{
+	
+	var proxy_delta = [0.0, 0.0, 0.0];
+	var proxy_err_m = 0.0;
+
+	var dist_v = [0.0, 0.0, 0.0];
+	var dist_m = 0.0;
+	
+	proxy_status = 0;
+	
+	num_points_r1 = 0;
+	num_points_r2 = 0;
+	num_points_r3 = 0;
+
+	proxy_normal = [0.0, 0.0, 0.0];
+	proxy_plane = [0.0, 0.0, 0.0];	
+	
+	var p_i = 0;
+	for (var i=0; i<num_points; i++)
+	{
+		//compute distances of all points in the voxel
+		dist_v = [Proxy_pos[0]-points[p_i], Proxy_pos[1]-points[p_i+1], Proxy_pos[2]-points[p_i+2]];
+		dist_m = modulus(dist_v);
+		
+		//check radiuses
+		if(dist_m<radius3)
+		{
+			points_r3_i[num_points_r3] = i;
+			num_points_r3++;		
+			proxy_normal = proxy_normal + dist_v/dist_m;
+			
+			if(dist_m<radius2)
+			{
+				num_points_r2++;
+				
+				if(dist_m<radius1)
+				{
+					num_points_r1++;
+				}	
+			}		
+		}
+		p_i = p_i +3;
+		
+	}
+	if(num_points_r3>0)
+	{
+		proxy_normal = proxy_normal/modulus(proxy_normal); //normalize
+	}
+	
+
+	
+	//free motion
+	proxy_err  = (eof_pos-proxy_pos);
+	proxy_err_m = modulus(proxy_err);	
+	
+	//compute proxy plane
+
+	var v_scalar = (proxy_err[0]*proxy_normal[0] + proxy_err[1]*proxy_normal[1] + proxy_err[2]*proxy_normal[2]);
+	v = v_scalar*proxy_normal;
+	
+	proxy_plane = proxy_err - v;
+	if(proxy_err_m > step)
+		proxy_delta = proxy_err*step/proxy_err_m;	
+	else
+		proxy_delta = proxy_err;
+		
+
+	if(num_points_r1>0)
+	{
+		proxy_status = 3; //entrenched
+		proxy_delta = 0.1*step*proxy_normal/modulus(proxy_normal);
+		
+	}
+	else if(num_points_r2>0)
+	{
+		proxy_status = 2; //contact
+		if(v_scalar<0)
+		{	
+			if(modulus(proxy_plane)>step)
+				proxy_delta = step*proxy_plane/modulus(proxy_plane);
+			else
+				proxy_delta = proxy_plane;
+		}	
+		//proxy_delta = [0.0, 0.0, 0.0];
+
+	}	
+	else if(num_points_r3>0)
+	{
+		proxy_status = 1; //free motion
+	}
+	else
+	{
+		proxy_status = 0; //no points, free motion
+	}
+
+	
+
+		
+	
+	return proxy_delta;
+	
+	
+}
