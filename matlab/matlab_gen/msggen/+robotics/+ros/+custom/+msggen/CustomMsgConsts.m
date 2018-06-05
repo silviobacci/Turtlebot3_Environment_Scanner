@@ -6,8 +6,7 @@ classdef CustomMsgConsts
     %   Copyright 2014-2018 The MathWorks, Inc.
     
     properties (Constant)
-        turtlebot3_environment_scanner_obstacle_point = 'turtlebot3_environment_scanner/obstacle_point'
-        turtlebot3_environment_scanner_scanned_points = 'turtlebot3_environment_scanner/scanned_points'
+        turtlebot3_environment_scanner_tb_cloud_points = 'turtlebot3_environment_scanner/tb_cloud_points'
     end
     
     methods (Static, Hidden)
@@ -17,9 +16,8 @@ classdef CustomMsgConsts
             
             persistent msgList
             if isempty(msgList)
-                msgList = cell(2, 1);
-                msgList{1} = 'turtlebot3_environment_scanner/obstacle_point';
-                msgList{2} = 'turtlebot3_environment_scanner/scanned_points';
+                msgList = cell(1, 1);
+                msgList{1} = 'turtlebot3_environment_scanner/tb_cloud_points';
             end
             
             messageList = msgList;
