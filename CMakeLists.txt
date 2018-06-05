@@ -63,6 +63,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
 	FILES
 	tb_cloud_points.msg
+	tb_destination.msg
 )
 
 ## Generate services in the 'srv' folder

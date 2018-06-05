@@ -21,9 +21,10 @@ static ros::Subscriber odom_subscriber;
 static geometry_msgs::Point tb_position;
 
 tb_cloud_points environment;
-double roll, pitch, yaw;
+tb_destination current_destination;
 
-static void quaternion_to_euler_angle(geometry_msgs::Quaternion q) {
+static double quaternion_to_euler_angle(geometry_msgs::Quaternion q) {
+/*
 	double sinr = 2.0 * (q.w * q.x + q.y * q.z);
 	double cosr = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
 	roll = atan2(sinr, cosr);
@@ -34,35 +35,21 @@ static void quaternion_to_euler_angle(geometry_msgs::Quaternion q) {
 	else
 		pitch = asin(sinp);
 
-
+*/
 	double siny = 2.0 * (q.w * q.z + q.x * q.y);
 	double cosy = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);  
-	yaw = atan2(siny, cosy);
+	return atan2(siny, cosy);
 }
 
 void print_lidar_info(tb_cloud_points env) {
 	ROS_INFO("RECEIVED FROM LIDAR");
-	ROS_INFO("distance[0] %f", env.distance[0]);
-	ROS_INFO("distance[90] %f", env.distance[90]);
-	ROS_INFO("distance[180] %f", env.distance[180]);
-	ROS_INFO("distance[270] %f", env.distance[270]);
-	ROS_INFO("min_distance %f", env.min_distance);
-	ROS_INFO("max_distance %f\n", env.max_distance);
 }
 
 void lidar_callback(const sensor_msgs::LaserScan::ConstPtr& lidar){
-	environment.angle_min = round(lidar->angle_min * RAD_TO_DEG);
-	environment.angle_max = round(lidar->angle_max * RAD_TO_DEG);
-	environment.angle_increment = round(lidar->angle_increment * RAD_TO_DEG);
-	
-	environment.min_distance = lidar->range_min;
-	environment.max_distance = lidar->range_max;
-
-	for(int i = 0; i < (environment.angle_max - environment.angle_min) / environment.angle_increment; i++) {
-		environment.angle[i] = i * environment.angle_increment;
-		environment.distance[i] = (lidar->ranges[i] >= environment.min_distance && lidar->ranges[i] <= environment.max_distance) ? lidar->ranges[i] : NO_VALUE;
-		environment.cloud_x[i] = environment.distance[i] != NO_VALUE ? environment.tb_x + environment.distance[i] * cos(yaw + environment.angle[i] * DEG_TO_RAD) : NO_VALUE;
-		environment.cloud_y[i] = environment.distance[i] != NO_VALUE ? environment.tb_y + environment.distance[i] * sin(yaw + environment.angle[i] * DEG_TO_RAD) : NO_VALUE;
+	for(int i = 0; i < 360; i++) {
+		float distance = (lidar->ranges[i] >= lidar->range_min && lidar->ranges[i] <= lidar->range_max) ? lidar->ranges[i] : NO_VALUE;
+		environment.cloud_x[i] = distance != NO_VALUE ? environment.tb_x + distance * cos(current_destination.tb_yaw + i * DEG_TO_RAD) : NO_VALUE;
+		environment.cloud_y[i] = distance != NO_VALUE ? environment.tb_y + distance * sin(current_destination.tb_yaw + i * DEG_TO_RAD) : NO_VALUE;
 	}
 
 	publish_env_constructor();
@@ -72,19 +59,13 @@ void lidar_callback(const sensor_msgs::LaserScan::ConstPtr& lidar){
 
 void print_velocity_info(const geometry_msgs::Twist::ConstPtr teleop_speed) { 
 	ROS_INFO("RECEIVED FROM CMD VEL"); 
-	ROS_INFO("teleop linear vel: %f",teleop_speed->linear.x); 
-	ROS_INFO("teleop angular vel: %f",teleop_speed->angular.z); 
-	ROS_INFO("output linear vel: %f", tb_speed.linear.x); 
-	ROS_INFO("output angular vel: %f\n", tb_speed.angular.z); 
 } 
  
 void teleop_callback(const geometry_msgs::Twist::ConstPtr& teleop_speed){ 
 	tb_speed.linear.x = teleop_speed->linear.x; 
 	tb_speed.angular.z = teleop_speed->angular.z; 
 
-	run_controller(); 
-
-	publish_cmd_vel(); 
+	//publish_cmd_vel(); 
 
 	//print_velocity_info(teleop_speed); 
 }
@@ -92,7 +73,13 @@ void teleop_callback(const geometry_msgs::Twist::ConstPtr& teleop_speed){
 void odom_callback(const nav_msgs::Odometry::ConstPtr& odom){ 
 	environment.tb_x = odom->pose.pose.position.x;
 	environment.tb_y = odom->pose.pose.position.y;
-	quaternion_to_euler_angle(odom->pose.pose.orientation);
+	current_destination.tb_x = odom->pose.pose.position.x;
+	current_destination.tb_y = odom->pose.pose.position.y;
+	current_destination.tb_yaw = quaternion_to_euler_angle(odom->pose.pose.orientation);
+
+	run_controller();
+
+	publish_tb_destination();
 }
 
 void init_subscriber(){

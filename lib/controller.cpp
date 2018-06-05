@@ -11,6 +11,7 @@
 #define RADIUS_2	0.5
 #define RADIUS_3	1.0
 
+double final_destination[3] = {1.0, -0.5, 0.0};
 struct timespec start, stop;
 double delta_t;
 
@@ -80,7 +81,7 @@ double * check_proxy_contact(double destination[3]) {
 	static double * proxy_delta;
 
 	double v_scalar;
-	double step = 0.1;
+	double step = delta_t * tb_speed.linear.x;
 	int num_points_r1 = 0;
 	int num_points_r2 = 0;
 	int num_points_r3 = 0;
@@ -98,7 +99,7 @@ double * check_proxy_contact(double destination[3]) {
 	double proxy_plane_m = 0.0;
 	double dist_m = 0.0;
 
-	for(int i = 0; i < (environment.angle_max - environment.angle_min) / environment.angle_increment; i++) {
+	for(int i = 0; i < 360; i++) {
 		//compute distances of all points in the voxel
 		double cloud_point[3] = {environment.cloud_x[i], environment.cloud_y[i], 0.0};
 		dist_v = vector_diff(proxy_position, cloud_point);
@@ -124,7 +125,7 @@ double * check_proxy_contact(double destination[3]) {
 	proxy_normal_m = modulus(proxy_normal);
 
 	if(num_points_r3 > 0) {
-		tmp = vector_sum(proxy_normal, vector_div(dist_v, proxy_normal_m));
+		tmp = vector_div(proxy_normal, proxy_normal_m);
 		proxy_normal[0] = tmp[0];
 		proxy_normal[1] = tmp[1];
 		proxy_normal[2] = tmp[2];
@@ -139,14 +140,16 @@ double * check_proxy_contact(double destination[3]) {
 	proxy_plane = vector_diff(proxy_err, vector_mul(proxy_normal, v_scalar));
 	proxy_plane_m = modulus(proxy_plane);
 	
+	// free motion
 	if(proxy_err_m > step)
 		proxy_delta = vector_mul(proxy_err, step/proxy_err_m); 
 	else 
-		proxy_delta = vector_mul(proxy_err, 1); 
+		proxy_delta = vector_mul(proxy_err, 1);
 		
 
+	// entrched
 	if(num_points_r1 > 0) 
-		proxy_delta = vector_mul(proxy_normal, 0.1 * step / proxy_normal_m);
+		proxy_delta = vector_mul(proxy_normal, step / proxy_normal_m);
 	else if(num_points_r2 > 0) {
 		if(v_scalar < 0){	
 			if(proxy_plane_m > step)
@@ -175,7 +178,7 @@ void init_controller() {
 }
 
 void run_controller() {
-	
+	/*
 	//print_controller_info();
 
 	if(abs(environment.distance[0]) < 0.5)
@@ -184,27 +187,24 @@ void run_controller() {
 	if(abs(environment.distance[0]) == 0.0)
 		tb_speed.linear.x = 0;
 	
-	/*
+	*/
 	clock_gettime(CLOCK_MONOTONIC, &stop);
 	delta_t = (stop.tv_sec - start.tv_sec) + (stop.tv_nsec - start.tv_nsec) / BILLION;
 	clock_gettime(CLOCK_MONOTONIC, &start);
 
 	double destination[3] = {0.0, 0.0, 0.0};
 
+	/*
 	if(tb_speed.linear.x != 0.0) {
 		destination[0] = environment.tb_x + SAFETY_DISTANCE * cos(yaw);
 		destination[1] = environment.tb_y + SAFETY_DISTANCE * sin(yaw);
 		destination[2] = 0.0;
 	}
-
-	print_controller_info(destination);
-
-	double * proxy_delta = check_proxy_contact(destination);
-	double * tb_s = vector_div(proxy_delta, delta_t);
-	tb_speed.linear.x = tb_s[0];
-	tb_speed.linear.y = tb_s[1];
-	tb_speed.linear.z = tb_s[2];
-
-	print_controller_info(destination);
 	*/
+
+	//print_controller_info(destination);
+
+	double * proxy_delta = check_proxy_contact(final_destination);
+	current_destination.destination_x = environment.tb_x + proxy_delta[0];
+	current_destination.destination_y = environment.tb_y + proxy_delta[1];
 }

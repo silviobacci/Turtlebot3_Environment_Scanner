@@ -2,13 +2,17 @@
 #define SUBSCRIBER_H
 
 #include <turtlebot3_environment_scanner/tb_cloud_points.h>
-//#include "scanner/types.h"
+#include <turtlebot3_environment_scanner/tb_destination.h>
 
 typedef turtlebot3_environment_scanner::tb_cloud_points tb_cloud_points;
 
+typedef turtlebot3_environment_scanner::tb_destination tb_destination;
+
+//#include "scanner/types.h"
+
 extern tb_cloud_points environment;
 
-extern double roll, pitch, yaw;
+extern tb_destination current_destination;
 
 void init_subscriber();
 

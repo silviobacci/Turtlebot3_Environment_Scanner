@@ -11,4 +11,6 @@ void publish_cmd_vel();
 
 void publish_env_constructor();
 
+void publish_tb_destination();
+
 #endif

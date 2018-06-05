@@ -1,11 +1,4 @@
 float64[360] cloud_x
 float64[360] cloud_y
-float32[360] angle
-float32[360] distance
 float64 tb_x
 float64 tb_y
-float32 angle_min
-float32 angle_max
-float32 angle_increment
-float32 min_distance
-float32 max_distance
