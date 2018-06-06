@@ -12,7 +12,7 @@ classdef tb_cloud_points < robotics.ros.Message
     end
     
     properties (Constant, Hidden)
-        MD5Checksum = '89d17103858a48874dce9f32bfaba684' % The MD5 Checksum of the message definition
+        MD5Checksum = 'ac416a37a5d3e7ab4f4d69c0672c1b67' % The MD5 Checksum of the message definition
     end
     
     properties (Access = protected)
@@ -22,20 +22,13 @@ classdef tb_cloud_points < robotics.ros.Message
     properties (Dependent)
         TbX
         TbY
-        AngleMin
-        AngleMax
-        AngleIncrement
-        MinDistance
-        MaxDistance
         CloudX
         CloudY
-        Angle
-        Distance
     end
     
     properties (Constant, Hidden)
-        PropertyList = {'Angle', 'AngleIncrement', 'AngleMax', 'AngleMin', 'CloudX', 'CloudY', 'Distance', 'MaxDistance', 'MinDistance', 'TbX', 'TbY'} % List of non-constant message properties
-        ROSPropertyList = {'angle', 'angle_increment', 'angle_max', 'angle_min', 'cloud_x', 'cloud_y', 'distance', 'max_distance', 'min_distance', 'tb_x', 'tb_y'} % List of non-constant ROS message properties
+        PropertyList = {'CloudX', 'CloudY', 'TbX', 'TbY'} % List of non-constant message properties
+        ROSPropertyList = {'cloud_x', 'cloud_y', 'tb_x', 'tb_y'} % List of non-constant ROS message properties
     end
     
     methods
@@ -108,66 +101,6 @@ classdef tb_cloud_points < robotics.ros.Message
             obj.JavaMessage.setTbY(tby);
         end
         
-        function anglemin = get.AngleMin(obj)
-            %get.AngleMin Get the value for property AngleMin
-            anglemin = single(obj.JavaMessage.getAngleMin);
-        end
-        
-        function set.AngleMin(obj, anglemin)
-            %set.AngleMin Set the value for property AngleMin
-            validateattributes(anglemin, {'numeric'}, {'nonempty', 'scalar'}, 'tb_cloud_points', 'AngleMin');
-            
-            obj.JavaMessage.setAngleMin(anglemin);
-        end
-        
-        function anglemax = get.AngleMax(obj)
-            %get.AngleMax Get the value for property AngleMax
-            anglemax = single(obj.JavaMessage.getAngleMax);
-        end
-        
-        function set.AngleMax(obj, anglemax)
-            %set.AngleMax Set the value for property AngleMax
-            validateattributes(anglemax, {'numeric'}, {'nonempty', 'scalar'}, 'tb_cloud_points', 'AngleMax');
-            
-            obj.JavaMessage.setAngleMax(anglemax);
-        end
-        
-        function angleincrement = get.AngleIncrement(obj)
-            %get.AngleIncrement Get the value for property AngleIncrement
-            angleincrement = single(obj.JavaMessage.getAngleIncrement);
-        end
-        
-        function set.AngleIncrement(obj, angleincrement)
-            %set.AngleIncrement Set the value for property AngleIncrement
-            validateattributes(angleincrement, {'numeric'}, {'nonempty', 'scalar'}, 'tb_cloud_points', 'AngleIncrement');
-            
-            obj.JavaMessage.setAngleIncrement(angleincrement);
-        end
-        
-        function mindistance = get.MinDistance(obj)
-            %get.MinDistance Get the value for property MinDistance
-            mindistance = single(obj.JavaMessage.getMinDistance);
-        end
-        
-        function set.MinDistance(obj, mindistance)
-            %set.MinDistance Set the value for property MinDistance
-            validateattributes(mindistance, {'numeric'}, {'nonempty', 'scalar'}, 'tb_cloud_points', 'MinDistance');
-            
-            obj.JavaMessage.setMinDistance(mindistance);
-        end
-        
-        function maxdistance = get.MaxDistance(obj)
-            %get.MaxDistance Get the value for property MaxDistance
-            maxdistance = single(obj.JavaMessage.getMaxDistance);
-        end
-        
-        function set.MaxDistance(obj, maxdistance)
-            %set.MaxDistance Set the value for property MaxDistance
-            validateattributes(maxdistance, {'numeric'}, {'nonempty', 'scalar'}, 'tb_cloud_points', 'MaxDistance');
-            
-            obj.JavaMessage.setMaxDistance(maxdistance);
-        end
-        
         function cloudx = get.CloudX(obj)
             %get.CloudX Get the value for property CloudX
             javaArray = obj.JavaMessage.getCloudX;
@@ -199,38 +132,6 @@ classdef tb_cloud_points < robotics.ros.Message
             array = obj.writeJavaArray(cloudy, javaArray, 'double');
             obj.JavaMessage.setCloudY(array);
         end
-        
-        function angle = get.Angle(obj)
-            %get.Angle Get the value for property Angle
-            javaArray = obj.JavaMessage.getAngle;
-            array = obj.readJavaArray(javaArray, 'single');
-            angle = single(array);
-        end
-        
-        function set.Angle(obj, angle)
-            %set.Angle Set the value for property Angle
-            validateattributes(angle, {'numeric'}, {'vector', 'numel', 360}, 'tb_cloud_points', 'Angle');
-            
-            javaArray = obj.JavaMessage.getAngle;
-            array = obj.writeJavaArray(angle, javaArray, 'single');
-            obj.JavaMessage.setAngle(array);
-        end
-        
-        function distance = get.Distance(obj)
-            %get.Distance Get the value for property Distance
-            javaArray = obj.JavaMessage.getDistance;
-            array = obj.readJavaArray(javaArray, 'single');
-            distance = single(array);
-        end
-        
-        function set.Distance(obj, distance)
-            %set.Distance Set the value for property Distance
-            validateattributes(distance, {'numeric'}, {'vector', 'numel', 360}, 'tb_cloud_points', 'Distance');
-            
-            javaArray = obj.JavaMessage.getDistance;
-            array = obj.writeJavaArray(distance, javaArray, 'single');
-            obj.JavaMessage.setDistance(array);
-        end
     end
     
     methods (Access = protected)
@@ -246,30 +147,16 @@ classdef tb_cloud_points < robotics.ros.Message
             % Iterate over all primitive properties
             cpObj.TbX = obj.TbX;
             cpObj.TbY = obj.TbY;
-            cpObj.AngleMin = obj.AngleMin;
-            cpObj.AngleMax = obj.AngleMax;
-            cpObj.AngleIncrement = obj.AngleIncrement;
-            cpObj.MinDistance = obj.MinDistance;
-            cpObj.MaxDistance = obj.MaxDistance;
             cpObj.CloudX = obj.CloudX;
             cpObj.CloudY = obj.CloudY;
-            cpObj.Angle = obj.Angle;
-            cpObj.Distance = obj.Distance;
         end
         
         function reload(obj, strObj)
             %reload Called by loadobj to assign properties
             obj.TbX = strObj.TbX;
             obj.TbY = strObj.TbY;
-            obj.AngleMin = strObj.AngleMin;
-            obj.AngleMax = strObj.AngleMax;
-            obj.AngleIncrement = strObj.AngleIncrement;
-            obj.MinDistance = strObj.MinDistance;
-            obj.MaxDistance = strObj.MaxDistance;
             obj.CloudX = strObj.CloudX;
             obj.CloudY = strObj.CloudY;
-            obj.Angle = strObj.Angle;
-            obj.Distance = strObj.Distance;
         end
     end
     
@@ -285,15 +172,8 @@ classdef tb_cloud_points < robotics.ros.Message
             
             strObj.TbX = obj.TbX;
             strObj.TbY = obj.TbY;
-            strObj.AngleMin = obj.AngleMin;
-            strObj.AngleMax = obj.AngleMax;
-            strObj.AngleIncrement = obj.AngleIncrement;
-            strObj.MinDistance = obj.MinDistance;
-            strObj.MaxDistance = obj.MaxDistance;
             strObj.CloudX = obj.CloudX;
             strObj.CloudY = obj.CloudY;
-            strObj.Angle = obj.Angle;
-            strObj.Distance = obj.Distance;
         end
     end
     

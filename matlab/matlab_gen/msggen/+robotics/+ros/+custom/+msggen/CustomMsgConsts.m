@@ -7,6 +7,7 @@ classdef CustomMsgConsts
     
     properties (Constant)
         turtlebot3_environment_scanner_tb_cloud_points = 'turtlebot3_environment_scanner/tb_cloud_points'
+        turtlebot3_environment_scanner_tb_destination = 'turtlebot3_environment_scanner/tb_destination'
     end
     
     methods (Static, Hidden)
@@ -16,8 +17,9 @@ classdef CustomMsgConsts
             
             persistent msgList
             if isempty(msgList)
-                msgList = cell(1, 1);
+                msgList = cell(2, 1);
                 msgList{1} = 'turtlebot3_environment_scanner/tb_cloud_points';
+                msgList{2} = 'turtlebot3_environment_scanner/tb_destination';
             end
             
             messageList = msgList;
