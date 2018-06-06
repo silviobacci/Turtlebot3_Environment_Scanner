@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+COMMAND_01="roscore"
+COMMAND_02="ssh turtlebot3@192.168.1.10"
+COMMAND_03="rosrun teleop_twist_keyboard teleop_twist_keyboard.py"
+COMMAND_04="rosrun $PROJECT_FOLDER_NAME $PROJECT_NODE_NAME"
+
+gnome-terminal --tab -e "$COMMAND_01" --tab -e "$COMMAND_02" --tab -e "$COMMAND_03" --tab -e "$COMMAND_04" 

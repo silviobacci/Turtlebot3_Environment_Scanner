@@ -1,8 +1,8 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-void init_controller();
+void run_controller_teleop();
 
-void run_controller();
+void run_controller_tb_destination();
 
 #endif
