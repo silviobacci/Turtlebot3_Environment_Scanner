@@ -13,6 +13,7 @@ typedef struct destination {
 	float final_destination_y;
 	float destination_x;
 	float destination_y;
+	float motion_state;
 	float tb_x;
 	float tb_y;
 	float tb_yaw;

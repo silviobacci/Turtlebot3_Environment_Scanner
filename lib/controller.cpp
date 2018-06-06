@@ -147,12 +147,16 @@ double * check_proxy_contact(double destination[3]) {
 		proxy_delta = vector_mul(proxy_err, step/proxy_err_m); 
 	else 
 		proxy_delta = vector_mul(proxy_err, 1);
-		
+	
+	current_destination.motion_state = 1;
 
 	// entrched
-	if(num_points_r1 > 0) 
+	if(num_points_r1 > 0) {
 		proxy_delta = vector_mul(proxy_normal, step / proxy_normal_m);
+		current_destination.motion_state = 3;
+	}
 	else if(num_points_r2 > 0) {
+		current_destination.motion_state = 2;
 		if(v_scalar < 0){	
 			if(proxy_plane_m > step)
 				proxy_delta = vector_mul(proxy_plane, step / proxy_plane_m);
@@ -212,8 +216,8 @@ void run_controller() {
 	//print_controller_info(destination);
 
 	double * proxy_delta = check_proxy_contact(final_destination);
-	ROS_INFO("proxy_delta.x %f", proxy_delta[0]);
-	ROS_INFO("proxy_delta.y %f", proxy_delta[1]);
+	//ROS_INFO("proxy_delta.x %f", proxy_delta[0]);
+	//ROS_INFO("proxy_delta.y %f", proxy_delta[1]);
 	current_destination.destination_x = current_destination.tb_x + proxy_delta[0];
 	current_destination.destination_y = current_destination.tb_y + proxy_delta[1];
 }
