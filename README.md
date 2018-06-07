@@ -24,6 +24,10 @@ lib 		-> libraries included in the source code
 =======
 src 		-> source code
 =======
+msg 		-> custom messagess
+=======
+matlab 		-> simulink models for the control part
+=======
 ```
 
 ## Authors
